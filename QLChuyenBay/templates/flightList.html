@@ -1,0 +1,337 @@
+{% extends 'layout/base.html' %}
+
+
+
+{% block content %}
+
+<div class="bg-warning d-flex w-100 justify-content-between p-2 rounded-3 shadow-lg mt-4 align-items-center">
+
+    <div>
+
+        <div class="airport-location d-block d-md-flex gap-5">
+
+            <div style="font-weight: bold;">{{ session['inp_search'].departure_airport_name }}  -----<i class="fa-solid fa-plane"></i>-----  {{ session['inp_search'].arrival_airport_name}}</div>
+
+             <div><i class="fa-regular fa-calendar"></i> {{ session['inp_search'].time_start}}</div>
+
+            <div><i class="fa-solid fa-user"></i> 1</div>
+
+        </div>
+
+        <div class="booking-info ">
+
+<!--             | 1 hành khách | Vé hạng {{ session['inp_search'].ticket_type }}-->
+
+
+
+        </div>
+
+    </div>
+
+    <a href="/" class="btn btn-light">
+
+        Đổi tìm kiếm
+
+    </a>
+
+</div>
+
+
+
+{% if not session['data_search'] %}
+
+<h3 class="text-danger text-center mt-4">Không có chuyến bay nào phù hợp!</h3>
+
+{% else %}
+
+<h3 class="text-center text-uppercase my-4">Danh sách chuyến bay phù hợp</h3>
+
+{% for d in session['data_search'] %}
+
+<div class="bg-light p-2 shadow-lg rounded-3 my-4 border border-2 search-result">
+
+    <div class="px-3 d-block d-md-flex justify-content-between align-items-center ">
+
+        <div>
+
+            <div class="d-flex gap-5 justify-content-between align-items-center">
+
+                <div class="d-flex justify-content-between align-items-center">
+
+                    <div class="time text-center">
+
+                        {{ d.time_start.hour }}:{{ d.time_start.minute }}
+
+                        <br>
+
+                        {{ d.departure_airport_name }}
+
+                    </div>
+
+                    <div class="mx-3">
+
+                        <div>..........<i class="fa-regular fa-clock"></i>..........</div>
+
+                        <div class="text-center">{{ d.time_end- d.time_start }} giờ </div>
+
+                    </div>
+
+                    <div class="time text-center">
+
+                        {{ d.time_end.hour }}:{{ d.time_end.minute }}
+
+                        <br>
+
+                        {{ d.arrival_airport_name }}
+
+                    </div>
+
+                </div>
+
+                <div>
+
+                     <div>Trạm dừng:
+
+                         {%if d.between_list.quantity%}
+
+                            {{ d.between_list.quantity }}
+
+                        {%else%}
+
+                            0
+
+                        {%endif%}
+
+                     </div>
+
+                    <div>Ước tính khoảng: {{ d.time_end - d.time_start }} giờ</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <form action="javascript:;">
+
+             <div class="d-flex align-item-center">
+
+                <div style="margin: 5px;">
+
+                    <div id="type-1" class="mb-2" onclick="selectTicketType1(1, {{d.id}}, '{{d.time_start}}')">
+
+                        <a href="#"  class="btn w-100 btn-warning book-ticket">Vé hạng 1 từ {{ d.price_type_1 }}</a>
+
+                     </div>
+
+                </div>
+
+                <div style="margin: 5px;">
+
+                    <div id="type-2" class="mb-2" onclick="selectTicketType2(2, {{d.id}}, '{{d.time_start}}')">
+
+                        <a href="#"  class="btn w-100 btn-success book-ticket eco">Vé hạng 2 từ {{ d.price_type_2 }}</a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </form>
+
+    </div>
+
+    <div class="">
+
+        <span role="button" class="ps-3 fst-italic text-primary " data-bs-toggle="collapse" data-bs-target="#collapseExample-{{d.id}}"
+
+              aria-expanded="false" aria-controls="collapseExample" >
+
+            Chi tiết chuyến bay
+
+        </span>
+
+        <div class="collapse" id="collapseExample-{{d.id}}">
+
+            <div class="card card-body">
+
+                {% for abw in d.between_list.data %}
+
+                <div> Sân bay trung gian {{ abw.airport_name }} (dừng khoảng {{ abw.time_stay}} phút)</div>
+
+                {% endfor %}
+
+                <div> ● Vé hạng 1: {%if d.ticket1_book_quantity %}
+
+                    {{ d.ticket1_book_quantity }}
+
+                    {%else%} 0 {%endif%}
+
+                    /{{ d.ticket1_quantity }}</div>
+
+                <div> ● Vé hạng 2:  {%if d.ticket2_book_quantity %}
+
+                    {{ d.ticket2_book_quantity }}
+
+                    {%else%} 0 {%endif%}/{{ d.ticket2_quantity }}</div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+
+
+
+{% endfor %}
+
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+
+    function checkTime(time_start){
+
+        const now = new Date();
+
+        const timeStart= new Date(time_start)
+
+
+
+        const timestamp = now.getTime();
+
+        const bookTicketTimestamp = timeStart.getTime();
+
+        return (bookTicketTimestamp - timestamp)/ (1000*60*60)
+
+    }
+
+
+
+function selectTicketType1(ticketType, flightId, time_start) {
+
+    event.preventDefault()
+
+    const timeStamp= checkTime(time_start) - 7
+
+
+
+    {%if current_user.is_authenticated%}
+
+        {%if current_user.user_role.value == 3%}
+
+            if( {{admin_rules.time_book_ticket}} > timeStamp ){
+
+                return Swal.fire("Lỗi", `Đã quá thời gian đặt vé. Vé chỉ còn cách thời gian bay khoảng ${Math.floor(timeStamp)} giờ!`, "error");
+
+            }else{
+
+                 window.location.href='/ticket/'+  flightId + '?ticket-type='+ticketType
+
+            }
+
+        {%elif current_user.user_role.value == 1 or current_user.user_role.value == 2%}
+
+            if( {{admin_rules.time_buy_ticket}} > timeStamp ){
+
+                return Swal.fire("Lỗi", `Đã quá thời gian bán vé. Vé chỉ còn cách thời gian bay khoảng ${Math.floor(timeStamp)} giờ!`, "error");
+
+            }else{
+
+                 window.location.href='/ticket/'+  flightId + '?ticket-type='+ticketType
+
+            }
+
+        {%endif%}
+
+    {%else%}
+
+        if( {{admin_rules.time_book_ticket}} > timeStamp ){
+
+              return Swal.fire("Lỗi", `Đã quá thời gian đặt vé. Vé chỉ còn cách thời gian bay khoảng ${Math.floor(timeStamp)} giờ!`, "error");
+
+        }else{
+
+              window.location.href='/ticket/'+  flightId + '?ticket-type='+ticketType
+
+        }
+
+    {%endif%}
+
+}
+
+
+
+
+
+  function selectTicketType2(ticketType, flightId, time_start) {
+
+    event.preventDefault()
+
+<!--        Lay theo gio chuan quoc te-->
+
+    const timeStamp= checkTime(time_start) - 7
+
+
+
+    {%if current_user.is_authenticated%}
+
+        {%if current_user.user_role.value == 3%}
+
+            if( {{admin_rules.time_book_ticket}} > timeStamp ){
+
+                return Swal.fire("Lỗi", `Đã quá thời gian đặt vé. Vé chỉ còn cách thời gian bay khoảng ${Math.floor(timeStamp)} giờ!`, "error");
+
+            }else{
+
+                 window.location.href='/ticket/'+  flightId + '?ticket-type='+ticketType
+
+            }
+
+        {%elif current_user.user_role.value == 1 or current_user.user_role.value == 2%}
+
+            if( {{admin_rules.time_buy_ticket}} > timeStamp ){
+
+                return Swal.fire("Lỗi", `Đã quá thời gian bán vé. Vé chỉ còn cách thời gian bay khoảng ${Math.floor(timeStamp)} giờ!`, "error");
+
+            }else{
+
+                 window.location.href='/ticket/'+  flightId + '?ticket-type='+ticketType
+
+            }
+
+        {%endif%}
+
+    {%else%}
+
+        if( {{admin_rules.time_book_ticket}} > timeStamp ){
+
+                return Swal.fire("Lỗi", `Đã quá thời gian đặt vé. Vé chỉ còn cách thời gian bay khoảng ${Math.floor(timeStamp)} giờ!`, "error");
+
+            }else{
+
+                 window.location.href='/ticket/'+  flightId + '?ticket-type='+ticketType
+
+            }
+
+    {%endif%}
+
+}
+
+
+
+</script>
+
+
+
+{% endblock %}

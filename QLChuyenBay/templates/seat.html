@@ -1,0 +1,46 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="text text-center fw-bold fs-2 mb-5">Chọn ghế</div>
+<form class="border border-2 shadow-lg p-3 rounded"  style="width:30%; margin: 0 auto;" action="">
+    {%for x in range(1, 200, 6)%}
+        <div class="d-flex justify-content-between">
+            <div>
+                <input style="width:45px; height:30px;" onclick="getIndex({{x}})" type="checkbox" id="vehicle{{x}}" name="vehicle{{x}}">
+                <input style="width:45px; height:30px;" onclick="getIndex({{x+1}})" type="checkbox" id="vehicle{{x+1}}" name="vehicle{{x}}">
+                <input style="width:45px; height:30px;" onclick="getIndex({{x+2}})" type="checkbox" id="vehicle{{x+2}}" name="vehicle{{x}}">
+            </div>
+            <div>
+                <input style="width:45px; height:30px;" onclick="getIndex({{x+3}})" type="checkbox" id="vehicle{{x+4}}" name="vehicle{{x}}">
+                <input style="width:45px; height: 30px;" onclick="getIndex({{x+4}})" type="checkbox" id="vehicle{{x+5}}" name="vehicle{{x}}">
+                <input style="width:45px; height: 30px;" onclick="getIndex({{x+5}})" type="checkbox" id="vehicle{{x+6}}" name="vehicle{{x}}">
+            </div>
+        </div>
+     {%if x== 97%}
+    <br><br>
+    {%endif%}
+
+    {%endfor%}
+    <div class="text text-center">
+        <button id="accept_ticket" class="btn btn-primary mx-2 mt-5 w-50 ">
+                Xác nhận đặt vé
+        </button>
+    </div>
+<!--     <div class="w-100 d-flex justify-content-between mt-4">-->
+<!--        <button data-user="{{ current_user.user_role }}" data-userId="{{ current_user.get_id() }}" id="submit-btn" class="btn btn-primary w-50">-->
+<!--            {% if current_user.user_role==user_role.USER or not current_user.is_authenticated %}-->
+<!--            Thanh toán thẻ-->
+<!--            {% else %}-->
+<!--            Thanh toán bằng tiền mặt-->
+<!--            {% endif %}-->
+<!--        </button>-->
+<!--        <button  data-user="{{ current_user.user_role }}" data-userId="{{ current_user.get_id() }}"-->
+<!--                 id="btn-momo" class="btn btn-info mx-2 w-50">-->
+<!--            Thanh toán qua Momo-->
+<!--        </button>-->
+<!--    </div>-->
+</form>
+
+<script src="{{url_for('static', filename='js/seat.js')}}"></script>
+
+{%endblock%}

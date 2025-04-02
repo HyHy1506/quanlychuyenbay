@@ -1,0 +1,44 @@
+{%extends 'layout/base.html'%}
+
+{%block title%}Đăng nhập{% endblock%}
+
+{%block content%}
+
+<h2 class="text text-center">Đăng nhập</h2>
+
+{% if err_msg %}
+
+<div class="alert alert-danger">
+    <h4>{{err_msg}}</h4>
+</div>
+
+{%endif%}
+<div class="wrapper w-lg-50 mx-auto mt-5 bg-light shadow p-3 mb-5 bg-body rounded">
+    <form method="POST" action="{{url_for('user_login')}}" class="was-validated">
+        <div class="mb-3 mt-3">
+            <label for="username" class="form-label">Username:</label>
+            <input type="text" class="form-control" id="username" placeholder="Nhập username" name="username" required>
+            <div class="valid-feedback">Valid.</div>
+            <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Mật khẩu:</label>
+            <input type="password" class="form-control" id="password" placeholder="Nhập password" name="password"
+                   required>
+            <div class="valid-feedback">Valid.</div>
+            <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+        <div class="login-button d-flex justify-content-between align-items-center">
+            <div>Chưa có tài khoản?
+                <a class="text text-decoration-none" href="{{url_for('user_register')}}">Đăng ký ngay! </a>
+            </div>
+
+            <div><a class="text text-decoration-none" href="{{url_for('user_verify')}}">Quên mật khẩu?</a></div>
+            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+        </div>
+        <div class="mb-3 mt-3">
+
+        </div>
+    </form>
+</div>
+{%endblock%}

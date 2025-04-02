@@ -1,0 +1,15 @@
+{%extends 'layout/base.html'%}
+
+{%block title%}Dang ky nguoi dung{% endblock%}
+
+{%block content%}
+<form method="POST" action="{{url_for('user_validate')}}">
+    <div class="mb-3 mt-3">
+        <label for="otp" class="form-label">OTP:</label>
+        <input type="number" class="form-control" id="otp" placeholder="Nhập OTP" name="otp">
+    </div>
+    <div class="mb-3 mt-3">
+        <button type="submit" class="btn btn-primary">Xác nhận</button>
+    </div>
+</form>
+{%endblock%}

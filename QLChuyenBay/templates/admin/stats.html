@@ -1,0 +1,682 @@
+{% extends 'admin/base.html'%}
+
+{%block body%}
+
+
+
+<div class="d-flex align-items-center justify-content-between">
+    <h1 class="text-center my-3">Thống kê báo cáo</h1>
+    <div class="d-flex align-items-center">
+        <select id="select_time" class="select-type form-control" style="width: 100px">
+            <option value="1" selected>Tháng</option>
+        </select>
+        <select id="select_time_month" class="ml-3 select-month form-control" style="width: 120px">
+                <option value="0" selected>Toàn bộ</option>
+                <option value="1">Tháng 1</option>
+                <option value="2">Tháng 2</option>
+                <option value="3">Tháng 3</option>
+                <option value="4">Tháng 4</option>
+                <option value="5">Tháng 5</option>
+                <option value="6">Tháng 6</option>
+                <option value="7">Tháng 7</option>
+                <option value="8">Tháng 8</option>
+                <option value="9">Tháng 9</option>
+                <option value="10">Tháng 10</option>
+                <option value="11">Tháng 11</option>
+                <option value="12">Tháng 12</option>
+        </select>
+        <select id="select_time_quarter" class="un_active ml-3 select-quarter form-control" style="width: 120px;">
+                <option value="0" selected>Toàn bộ</option>
+                <option value="1">Quý 1</option>
+                <option value="2">Quý 2</option>
+                <option value="3">Quý 3</option>
+                <option value="4">Quý 4</option>
+        </select>
+    </div>
+</div>
+
+
+
+<div class="row mt-3">
+    <div class="col-md-6 col-12 shadow-sm">
+        <table class="table">
+            <thead>
+                <tr style="background-color:#1d6a85; color:#fff">
+                    <th scope="col" class="title-revenue text-center" colspan="4">BÁO CÁO DOANH THU</th>
+                </tr>
+                <tr style="background-color:#fec107;">
+                    <th>ID</th>
+                    <th>Sân bay đi</th>
+                    <th>Sân bay đến</th>
+                    <th>Tổng doanh thu</th>
+                </tr>
+            </thead>
+            <tbody id="body_revenue">
+                {% for s in stats['data']%}
+                <tr class="table_revenue " style="background-color:#d9feff;">
+                    <td>{{ s['flight_route']['id'] }}</td>
+                    <td>{{ s['flight_route']['departure_airport'] }}</td>
+                    <td>{{ s['flight_route']['arrival_airport'] }}</td>
+                    <td>{{ "{:,.0f}".format(s['total_price'])}} VNĐ </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="chartRevenue" class="col-md-6 col-12">
+        <canvas id="chartRevenue0"></canvas>
+    </div>
+</div>
+
+<br><br>
+<div class="w-100" style="background-color:#fec107; height:3px;"></div>
+
+<div class="row mt-5">
+    <div id="chartTicket" class="col-md-6 col-12">
+        <canvas id="chartTicket0"></canvas>
+    </div>
+    <div class="col-md-6 col-12 shadow-sm">
+        <table class="table">
+            <thead>
+                <tr style="background-color:#1d6a85; color:#fff">
+                    <th scope="col" class="title-ticket text-center" colspan="4">BÁO CÁO VÉ</th>
+                </tr>
+                <tr style="background-color:#fec107;">
+                    <th>Id</th>
+                    <th>Sân bay đi</th>
+                    <th>Sân bay đến</th>
+                    <th>Tổng vé tuyến bay</th>
+                </tr>
+            </thead>
+            <tbody id="body_ticket">
+                {% for s in stats['data']%}
+                    <tr class="table_ticket" style="background-color:#d9feff;">
+                        <td>{{ s['flight_route']['id']}}</td>
+                        <td>{{ s['flight_route']['departure_airport']}}</td>
+                        <td>{{ s['flight_route']['arrival_airport']}}</td>
+                        <td>{{ s['total_ticket']}} Vé </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<br><br>
+<div class="w-100" style="background-color:#fec107; height:3px;"></div>
+
+<div class="row mt-5">
+    <div class="col-md-6 col-12 shadow-sm">
+        <table class="table">
+            <thead>
+                <tr style="background-color:#1d6a85; color:#fff">
+                    <th scope="col" class="title-flight text-center" colspan="4">BÁO CÁO LƯỢT BAY</th>
+                </tr>
+                <tr style="background-color:#fec107;">
+                    <th>Id</th>
+                    <th>Sân bay đi</th>
+                    <th>Sân bay đến</th>
+                    <th>Tổng số lượt bay</th>
+                </tr>
+            </thead>
+            <tbody id="body_flight">
+                {% for s in stats['data'] %}
+                    <tr class="table_flight" style="background-color:#d9feff;">
+                        <td>{{ s['flight_route']['id']}}</td>
+                        <td>{{ s['flight_route']['departure_airport']}}</td>
+                        <td>{{ s['flight_route']['arrival_airport']}}</td>
+                        <td>{{ s['total_flight']}} Chuyến</td>
+
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div id="chartFlight" class="col-md-6 col-12">
+        <canvas id="chartFlight0"></canvas>
+    </div>
+</div>
+<br><br>
+<div class="w-100" style="background-color:#fec107; height:3px;"></div>
+
+<div class="row mt-5">
+    <div id="chartRate" class="col-md-6 col-12">
+        <canvas id="chartRate0"></canvas>
+    </div>
+    <div class="col-md-6 col-12">
+        <table class="table shadow-sm">
+            <thead>
+                <tr style="background-color:#1d6a85; color:#fff">
+                    <th scope="col" class="title-rate text-center" colspan="4">TỈ LỆ LƯỢT BAY</th>
+                </tr>
+                <tr style="background-color:#fec107;">
+                    <th>Id</th>
+                    <th>Sân bay đi</th>
+                    <th>Sân bay đến</th>
+                    <th>Tổng số lượt bay</th>
+                </tr>
+            </thead>
+            <tbody id="body_rate">
+               {% for s in stats['data'] %}
+                    <tr class="table_rate" style="background-color:#d9feff;">
+                        <td>{{ s['flight_route']['id']}}</td>
+                        <td>{{ s['flight_route']['departure_airport']}}</td>
+                        <td>{{ s['flight_route']['arrival_airport']}}</td>
+                        <td>{{ "{:,.2f}".format(s['flight_rate']) }} % </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<br><br>
+<div class="w-100" style="background-color:#fec107; height:3px;"></div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <table class="table">
+            <thead>
+                <tr style="background-color:#1d6a85; color:#fff">
+                    <th scope="col" class="title-total text-center" colspan="4">BÁO CÁO TỔNG</th>
+                </tr>
+                <tr style="background-color:#fec107;">
+                    <th>Id</th>
+                    <th>Sân bay đi</th>
+                    <th>Sân bay đến</th>
+                    <th>Tổng số lượt bay</th>
+                    <th>Tổng số vé</th>
+                    <th>Tổng số doanh thu</th>
+                    <th>Tỷ lệ chuyến bay</th>
+                </tr>
+            </thead>
+            <tbody id="body_total">
+                {% for s in stats['data'] %}
+                    <tr class="table_total" style="background-color:#d9feff;">
+                        <td>{{ s['flight_route']['id']}}</td>
+                        <td>{{ s['flight_route']['departure_airport']}}</td>
+                        <td>{{ s['flight_route']['arrival_airport']}}</td>
+                        <td>{{ s['total_flight']}} Chuyến</td>
+                        <td>{{ s['total_ticket']}} Vé </td>
+                        <td>{{ '{:,.0f}'.format(s['total_price']) }} VNĐ </td>
+                        <td>{{ "{:,.2f}".format(s['flight_rate']) }} % </td>
+                    </tr>
+                {% endfor %}
+
+            </tbody>
+        </table>
+        <div>
+            <h3 class="text text-center text text-danger">
+            Tổng doanh thu: {{ '{:,.0f}'.format(stats['total_price']) }} VNĐ
+            </h3>
+        </div>
+        <br><br>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .un_active {
+        display: none;
+    }
+</style>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const selectTimeChange= document.getElementById('select_time')
+    const selectTimeMonth= document.getElementById('select_time_month')
+    const selectTimeQuarter= document.getElementById('select_time_quarter')
+
+    selectTimeChange.onchange=()=>{
+        if(selectTimeChange.value==1){
+            selectTimeMonth.style.display='inline'
+            selectTimeQuarter.style.display='';
+        }
+        if(selectTimeChange.value==2){
+           selectTimeMonth.style.display='none'
+            selectTimeQuarter.style.display='inline';
+        }
+    }
+
+    let data = [];
+    let labels = [];
+
+    let data2 = [];
+    let labels2 = [];
+
+    let data3 = [];
+    let labels3 = [];
+
+    let data4 = [];
+    let labels4 = [];
+
+    {% for s in stats['data'] %}
+        labels.push('{{ s['flight_route']['departure_airport'] }} -> {{ s['flight_route']['arrival_airport'] }}');
+        data.push({{ s['total_price'] }});
+    {% endfor %}
+
+    {% for s in stats['data'] %}
+        labels2.push('{{ s['flight_route']['departure_airport'] }} -> {{ s['flight_route']['arrival_airport'] }}');
+        data2.push({{ s['total_ticket']}});
+    {% endfor %}
+
+    {% for s in stats['data'] %}
+        labels3.push('{{ s['flight_route']['departure_airport'] }} -> {{ s['flight_route']['arrival_airport'] }}');
+        data3.push({{ s['total_flight']}});
+    {% endfor %}
+
+    {% for s in stats['data'] %}
+        labels4.push('{{ s['flight_route']['departure_airport'] }} -> {{ s['flight_route']['arrival_airport'] }}');
+        data4.push({{s['flight_rate']}});
+    {% endfor %}
+
+    function drawBar(ctx, data, labels) {
+        colors= randColor(data)
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: '# Doanh thu',
+                data: data,
+                borderWidth: 1,
+                backgroundColor: colors,
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+    }
+
+    function drawLine(ctx, data, labels) {
+        colors= randColor(data)
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: '#Vé',
+                data: data,
+                borderWidth: 5,
+                backgroundColor: colors,
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+    }
+
+
+
+    function drawDoughnut(ctx, data, labels) {
+        colors= randColor(data)
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: '# Doanh thu',
+                data: data,
+                borderWidth: 1,
+                backgroundColor: colors,
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+    }
+
+
+    function drawPie(ctx, data, labels) {
+        colors= randColor(data)
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: '# Doanh thu',
+                data: data,
+                borderWidth: 1,
+                backgroundColor: colors,
+              }]
+            },
+            options: {
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          });
+    }
+
+
+    function randColor(arr) {
+        arrColor = []
+        arr.forEach(item => {
+            const r = Math.floor(Math.random() * 255);
+            const g = Math.floor(Math.random() * 255);
+            const b = Math.floor(Math.random() * 255);
+            arrColor.push(`rgb(${r},${g},${b})`);
+        })
+        return arrColor
+    }
+
+    window.onload = function() {
+         const ctx = document.getElementById('chartRevenue0');
+         const ctx2 = document.getElementById('chartTicket0');
+         const ctx3 = document.getElementById('chartFlight0');
+         const ctx4 = document.getElementById('chartRate0');
+
+          drawBar(ctx, data, labels);
+          drawLine(ctx2, data2, labels2);
+          drawDoughnut(ctx3, data3, labels3);
+          drawPie(ctx4, data4, labels4);
+
+    }
+
+    selectTimeMonth.onchange = (e) => {
+        const val = e.target.value
+        switch(val) {
+            default:
+                getRevenueDataMonth(val)
+                getTicketDataMonth(val)
+                getFlightDataMonth(val)
+                getTotalDataMonth(val)
+                break;
+        }
+    }
+
+    selectTimeQuarter.onchange= (e)=>{
+        const val= e.target.value
+        switch(val) {
+            default:
+                getRevenueDataQuarter(val)
+                getTicketDataQuarter(val)
+                getFlightDataQuarter(val)
+                getTotalDataQuarter(val)
+                break;
+        }
+    }
+
+    function editRevenueData(month, data, totalPrice) {
+        const tableRevenue = document.querySelectorAll('.table_revenue')
+        tableRevenue.forEach(r => r.remove())
+        const htmls = data.map(d => {
+            return `
+                <tr class="table_revenue">
+                    <td>${d['flight_route']['id']}</td>
+                    <td>${d['flight_route']['departure_airport']}</td>
+                    <td>${d['flight_route']['arrival_airport']}</td>
+                    <td>${new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(d['total'])}</td>
+                </tr>
+            `
+        }).join("")
+        document.querySelector('#body_revenue').innerHTML = htmls
+        document.querySelector('.title-revenue').innerHTML = `BÁO CÁO DOANH THU ${month != 0 ? "THÁNG " + month: "TOÀN BỘ"}`
+    }
+
+    function editTicketData(month, data){
+        const tableTicket = document.querySelectorAll('.table_ticket')
+        tableTicket.forEach(r => r.remove())
+
+        const htmls = data.map(d => {
+            return `
+                <tr class="table_ticket">
+                    <td>${d['flight_route']['id']}</td>
+                    <td>${d['flight_route']['departure_airport']}</td>
+                    <td>${d['flight_route']['arrival_airport']}</td>
+                    <td>${d['total']} Vé </td>
+                </tr>
+            `
+        }).join("")
+        document.querySelector('#body_ticket').innerHTML = htmls
+        document.querySelector('.title-ticket').innerHTML = `BÁO CÁO TỔNG VÉ ĐÃ BÁN ${month != 0 ? "THÁNG " + month: "TOÀN BỘ"}`
+    }
+
+    function editFlightData(month, data){
+        const tableFlight = document.querySelectorAll('.table_flight')
+        tableFlight.forEach(r => r.remove())
+
+        const htmls = data.map(d => {
+            return `
+                <tr class="table_flight">
+                    <td>${d['flight_route']['id']}</td>
+                    <td>${d['flight_route']['departure_airport']}</td>
+                    <td>${d['flight_route']['arrival_airport']}</td>
+                    <td>${d['total']} Lượt </td>
+                </tr>
+            `
+        }).join("")
+        document.querySelector('#body_flight').innerHTML = htmls
+        document.querySelector('.title-flight').innerHTML = `BÁO CÁO CHUYẾN BAY ${month != 0 ? "THÁNG " + month: "TOÀN BỘ"}`
+    }
+
+
+    function editRateData(month, data){
+        const tableRate = document.querySelectorAll('.table_rate')
+        tableRate.forEach(r => r.remove())
+
+        const htmls = data.data.map(d => {
+            console.log(d)
+            return `
+                <tr class="table_rate">
+                    <td>${d['flight_route']['id']}</td>
+                    <td>${d['flight_route']['departure_airport']}</td>
+                    <td>${d['flight_route']['arrival_airport']}</td>
+                    <td>${((d['total']) *100 / data['total_flight']).toFixed(2)} %</td>
+                </tr>
+            `
+        }).join("")
+        document.querySelector('#body_rate').innerHTML = htmls
+        document.querySelector('.title-rate').innerHTML = `BÁO CÁO TỶ LỆ CHUYẾN BAY ${month != 0 ? "THÁNG " + month: "TOÀN BỘ"}`
+    }
+
+     function editTotalData(month, data){
+        const tableTotal = document.querySelectorAll('.table_total')
+        tableTotal.forEach(r => r.remove())
+
+        const htmls = data.data.map(d => {
+            return `
+                <tr class="table_total">
+                    <td>${d['flight_route']['id']}</td>
+                    <td>${d['flight_route']['departure_airport']}</td>
+                    <td>${d['flight_route']['arrival_airport']}</td>
+                    <td>${ d['total_flight']} Chuyến</td>
+                    <td>${d['total_ticket']} Vé </td>
+                    <td>${d['total_price'].toLocaleString()} VNĐ </td>
+                    <td>${d['flight_rate'].toFixed(2)} % </td>
+                </tr>
+            `
+        }).join("")
+        document.querySelector('#body_total').innerHTML = htmls
+        document.querySelector('.title-total').innerHTML = `BÁO CÁO TỶ LỆ CHUYẾN BAY ${month != 0 ? "THÁNG " + month: "TOÀN BỘ"}`
+    }
+
+    function getRevenueDataMonth(month) {
+        fetch(`/api/get_stats_revenue/${month}`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+             editRevenueData(month, data.data, data.total_price)
+
+             if(document.getElementById("chartRevenue0")){
+                document.getElementById("chartRevenue0").remove()
+             }
+             for(let i=1; i<=12; i++){
+                if(document.getElementById(`chartRevenue${i}`)){
+                     document.getElementById(`chartRevenue${i}`).remove()
+                }
+             }
+
+             const canvasRev = document.createElement("canvas");
+             canvasRev.id = `chartRevenue${month}`
+             document.querySelector('#chartRevenue').appendChild(canvasRev)
+             const canvasRevenue= document.getElementById(`chartRevenue${month}`)
+             pushDataForChart(canvasRevenue, data.data, month)
+        })
+        .catch(err=> console.log(err))
+    }
+
+
+
+    function getTicketDataMonth(month) {
+        fetch(`/api/get_stats_ticket/${month}`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+             editTicketData(month, data.data)
+
+             if(document.getElementById("chartTicket0")){
+                document.getElementById("chartTicket0").remove()
+             }
+             for(let i=1; i<=12; i++){
+                if(document.getElementById(`chartTicket${i}`)){
+                     document.getElementById(`chartTicket${i}`).remove()
+                }
+             }
+
+             const canvasTick = document.createElement("canvas");
+             canvasTick.id = `chartTicket${month}`
+             document.querySelector('#chartTicket').appendChild(canvasTick)
+             const canvasTicket= document.getElementById(`chartTicket${month}`)
+             pushDataForChart(canvasTicket, data.data, month)
+        })
+        .catch(err=> console.log(err))
+    }
+
+
+    function getTicketDataQuarter(quarter) {
+        fetch(`/api/get_stats_ticket_quarter/${quarter}`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+             editTicketData(quarter, data.data)
+
+             if(document.getElementById("chartTicket0")){
+                document.getElementById("chartTicket0").remove()
+             }
+             for(let i=1; i<=4; i++){
+                if(document.getElementById(`chartTicket${i}`)){
+                     document.getElementById(`chartTicket${i}`).remove()
+                }
+             }
+
+             const canvasTick = document.createElement("canvas");
+             canvasTick.id = `chartTicket${quarter}`
+             document.querySelector('#chartTicket').appendChild(canvasTick)
+             const canvasTicket= document.getElementById(`chartTicket${quarter}`)
+             pushDataForChart(canvasTicket, data.data, quarter)
+        })
+        .catch(err=> console.log(err))
+    }
+
+    function getFlightDataMonth(month) {
+        fetch(`/api/get_stats_flight/${month}`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+             editRateData(month, data)
+             editFlightData(month, data.data)
+
+             if(document.getElementById("chartFlight0")){
+                document.getElementById("chartFlight0").remove()
+             }
+             for(let i=1; i<=12; i++){
+                if(document.getElementById(`chartFlight${i}`)){
+                     document.getElementById(`chartFlight${i}`).remove()
+                }
+             }
+             const canvasFli = document.createElement("canvas");
+             canvasFli.id = `chartFlight${month}`
+             document.querySelector('#chartFlight').appendChild(canvasFli)
+             const canvasFlight= document.getElementById(`chartFlight${month}`)
+             pushDataForChart(canvasFlight, data.data, month)
+
+
+             if(document.getElementById("chartRate0")){
+                document.getElementById("chartRate0").remove()
+             }
+             for(let i=1; i<=12; i++){
+                if(document.getElementById(`chartRate${i}`)){
+                     document.getElementById(`chartRate${i}`).remove()
+                }
+             }
+             const canvasRt = document.createElement("canvas");
+             canvasRt.id = `chartRate${month}`
+             document.querySelector('#chartRate').appendChild(canvasRt)
+             const canvasRate= document.getElementById(`chartRate${month}`)
+             pushDataForChart(canvasRate, data.data, month)
+        })
+        .catch(err=> console.log(err))
+    }
+
+    function getTotalDataMonth(month) {
+        fetch(`/api/get_stats_total/${month}`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+             editTotalData(month, data)
+        })
+        .catch(err=> console.log(err))
+    }
+
+    let dataTmp=[]
+    let labelsTmp=[]
+    function pushDataForChart(cvs, data, month){
+        dataTmp=[]
+        labelsTmp=[]
+        for (let x of data){
+            dataTmp.push(x['total'])
+            labelsTmp.push(`${x['flight_route']['departure_airport']} -> ${x['flight_route']['arrival_airport']}`)
+        }
+        if(cvs.id.includes('chartRev')){
+            drawBar(cvs, dataTmp, labelsTmp)
+        }
+        if(cvs.id.includes('chartTicket')){
+            drawLine(cvs, dataTmp, labelsTmp)
+        }
+        if(cvs.id.includes('chartFli')){
+            drawDoughnut(cvs, dataTmp, labelsTmp)
+        }
+        if(cvs.id.includes('chartRate')){
+            drawDoughnut(cvs, dataTmp, labelsTmp)
+        }
+    }
+</script>
+<script src="{{url_for('static', filename='js/stats.js')}}"></script>
+{%endblock%}

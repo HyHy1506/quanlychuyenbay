@@ -1,0 +1,208 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<div class="mt-2 ms-2">
+    <h1 class="fw-bold">Đặt vé</h1>
+    <div class="fst-italic">Điền thông tin và xem lại đặt chỗ.</div>
+</div>
+<div class="mt-4 gap-3 d-block d-lg-flex ">
+    <form class="flex-grow-1 shadow-lg p-3">
+        <div>
+            <h5 class="ms-2 fw-bold h3">
+                Thông tin liên hệ
+            </h5>
+            <div class="d-block d-md-flex gap-4 bg-white p-2 rounded-2">
+                <div class="w-50 mb-3">
+                    <label for="name" class=" form-label">Họ và tên: </label>
+                    <input value="Trần Lê Anh Quí" placeholder="Trần Lê Anh Quí" required minlength="4"
+                           type="text" name="name" class="name form-control" id="name" readonly>
+                </div>
+                <div class="w-50 mb-3">
+                    <label for="phone" class=" form-label">Số điện thoại: </label>
+                    <input value="0337518997" placeholder="XXXXXXXXXX" required minlength="10"
+                           maxlength="10" type="text" name="phone" class="phone form-control" id="phone" readonly>
+                </div>
+                <div class="w-50 mb-3">
+                    <label for="email" class=" form-label">Email: </label>
+                    <input value="0337518997" placeholder="XXXXXXXXXX" required minlength="10"
+                           maxlength="10" type="text" name="email" class="email form-control" id="email" readonly>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <h5 class="ms-2 fw-bold h3">
+                Thông tin hành khách <span id="add-customer" class="btn btn-primary">+</span><span id="sub-customer"
+                                                                                                   class="ms-2 btn btn-danger">-</span>
+            </h5>
+            <!--            <p class="text-warning ms-2">Hãy chắc chắn rằng tên của hành khách khớp với tên trên CCCD/CMND/Hộ chiếu/Giấy-->
+            <!--                phép-->
+            <!--                lái xe do chính-->
+            <!--                phủ cấp.-->
+            <!--                Bạn nên tránh sai sót vì một số hãng hàng không không cho phép sửa tên sau khi đặt vé.</p>-->
+            <div class="customer-info d-flex flex-wrap gap-4 bg-white p-2 rounded-2">
+                <div class="flex-grow-1 mb-3">
+                    <label for="name-1" class="form-label">Họ và tên:</label>
+                    <input value="Nguyễn Văn B" placeholder="Nguyễn Văn A" required minlength="4"
+                           type="text" name="name-1" class="name-1 form-control" id="name-1">
+                </div>
+                <div class="flex-grow-1 mb-3">
+                    <label for="cccd-1" class="form-label">CCCD:</label>
+                    <input value="096204015159" placeholder="096204015159" required minlength="12" maxlength="12"
+                           type="text" name="cccd-1" class="cccd-1 form-control" id="cccd-1">
+                </div>
+                <div class="flex-grow-1 mb-3">
+                    <label for="dob-1" class="form-label">Ngày sinh:</label>
+                    <input value="2004-02-21"placeholder="YYYY-MM-DD" required type="date"
+                           name="dob-1" class="dob-1 form-control" id="dob-1">
+                </div>
+                <!-- Ngắt dòng tại đây -->
+                <div class="w-100"></div>
+                <div class="flex-grow-1 mb-3">
+                    <label for="phone-1" class="form-label">Số điện thoại:</label>
+                    <input value="1234567890" placeholder="XXXXXXXXXX" required minlength="10" maxlength="10"
+                           type="text" name="phone-1" class="phone-1 form-control" id="phone-1">
+                </div>
+                <div class="flex-grow-1 mb-3">
+                    <label for="id-1" class="form-label">Email:</label>
+                    <input value="abc@gmail.com" placeholder="abc@gmail.com" required type="email"
+                           name="id-1" class="id-1 form-control" id="id-1">
+                </div>
+
+
+            </div>
+
+
+        </div>
+        <div class="mt-4"><h5 class="ms-2 fw-bold h3">
+    Thông tin hành lý
+</h5>
+    <p class="text-warning ms-2">
+        Sao bạn phải cố nhồi nhét? Thêm hành lý để chuyến đi thêm nhẹ nhàng.
+    </p>
+    <datalist id="packages">
+        <option value="8"></option>
+        <option value="12"></option>
+    </datalist>
+    <div class="d-flex gap-4 bg-white p-2 rounded-2">
+        <div class="flex-grow-1 mb-3">
+            <label for="package" class=" form-label">Hành lý thêm (kg): </label>
+            <select id="package" class="form-select">
+                <option selected value="0">0</option>
+                <option value="12">12</option>
+                <option value="20">20</option>
+            </select>
+        </div>
+    </div>
+</div>
+<div>
+    <button data-user="{{ current_user.user_role }}" data-userId="{{ current_user.get_id() }}"
+            id="choose_seat" class="btn btn-success mx-2 w-100">
+        Chọn ghế
+    </button>
+</div>
+
+    </form>
+    <div class="shadow-lg" style="width: 40%">
+        <div style="margin-top: 32px" class="bg-white shadow-sm p-3 rounded-2">
+            <div class="w-100 mb-2">
+                <img src="https://www.airpartner.com/media/njwhmfa1/meta-aircraft-guide-v1.jpg" alt=""class="img-fluid">
+            </div>
+            <div class="h4 fw-bold">
+                
+                {{ f.departure_airport }} → {{ f.arrival_airport }}
+            </div>
+            <div class="h5">
+                Vé hạng <span class="ticket-type">{{ ticket_type }}</span>
+            </div>
+            <hr>
+            <div class="fw-bold"> <i class="fa-regular fa-clock"></i> {{f.time_start}}</div>
+            <hr>
+            <div class="fst-italic text-muted">
+                <img src="https://d1785e74lyxkqq.cloudfront.net/_next/static/v2/c/cb44d8f687512efb3aa32c7b6f46d9ab.svg"
+                     width="12" height="12" style="margin-right: 8px; flex-shrink: 0;">
+                Không hoàn tiền
+            </div>
+            <div class="fw-bold fst-italic text-success">
+                <img src="https://d1785e74lyxkqq.cloudfront.net/_next/static/v2/0/0451207408e414bb8a1664153973b3c8.svg"
+                     width="12" height="12" style="margin-right: 8px; flex-shrink: 0;">
+                Có áp dụng đổi lịch bay
+            </div>
+        </div>
+        <div style="margin-top: 32px"
+             class="d-flex justify-content-between align-items-center bg-white shadow-sm p-3 rounded-2">
+            <div>
+                Giá phải trả:
+            </div>
+            <div style="color: rgb(255, 94, 31);" class="price fw-bold fs-4">{%if ticket_type=='1'%}
+                <span data-price="{{ f.price_type_1 }}">{{ f.price_type_1 }} VNĐ</span>
+                {%elif ticket_type=='2'%}
+                <span data-price="{{ f.price_type_2 }}">{{ f.price_type_2 }} VNĐ</span>
+                {%endif%}
+            </div>
+        </div>
+    </div>
+</div>
+
+<br><br><br>
+<div style="width:80%; margin: 0 auto;">
+    <h1 class="text fw-bold text-center">Chọn ghế</h1>
+    <form style="width:50%; margin: 0 auto;">
+
+        {%for x in range(0, 199, 6)%}
+        <div class="d-flex justify-content-between">
+            <div>
+                <input class="seat" style="width:45px; height:30px;" type="checkbox" id="check{{x}}"
+                       name="seat{{x}}">
+                <input class="seat" style="width:45px; height:30px;" type="checkbox" id="check{{x+1}}"
+                       name="seat{{x+1}}">
+                <input class="seat" style="width:45px; height:30px;" type="checkbox" id="check{{x+2}}"
+                       name="seat{{x+2}}">
+            </div>
+            <div>
+                <input class="seat" style="width:45px; height:30px;" type="checkbox" id="check{{x+3}}"
+                       name="seat{{x+3}}">
+                <input class="seat" style="width:45px; height: 30px;" type="checkbox" id="check{{x+4}}"
+                       name="seat{{x+4}}">
+                <input class="seat" style="width:45px; height: 30px;" type="checkbox" id="check{{x+5}}"
+                       name="seat{{x+5}}">
+            </div>
+        </div>
+        {%if x== 96%}
+        <br><br>
+        {%endif%}
+
+        {%endfor%}
+        <div>
+            {%if current_user.is_authenticated%}
+            <button id="accept_ticket" class="btn btn-success mx-2 w-100">
+                Xác nhận đặt vé
+            </button>
+            {%else%}
+            <a href="{{ url_for('user_login', next=request.url) }}" class=" btn btn-warning mx-2 w-100">Đăng nhập để xác nhận đặt vé</a>
+            {%endif%}
+        </div>
+    </form>
+</div>
+
+<style>
+
+</style>
+
+{% block js %}
+<script>
+    window.onload=()=>{
+        {%for s in seat_active%}
+           const check{{s}}=document.getElementById('check{{s}}')
+           check{{s}}.checked= true
+           check{{s}}.disabled = true
+        {%endfor%}
+    }
+
+</script>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script defer src="{{ url_for('static', filename='js/ticket.js') }}"></script>
+
+{% endblock %}
+{% endblock %}

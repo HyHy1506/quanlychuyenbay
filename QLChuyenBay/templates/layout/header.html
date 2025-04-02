@@ -1,0 +1,60 @@
+<nav class="navbar navbar-expand-sm navbar-dark">
+    <div class="container-fluid">
+        <!-- Logo phần tử -->
+        <a class="navbar-brand" href="{{url_for('home')}}">PHUQUI Airlines</a>
+
+        <!-- Nút toggler cho màn hình nhỏ -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mynavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Các mục trong navbar (các nav-link được căn giữa) -->
+        <div class="collapse navbar-collapse" id="mynavbar">
+            <ul class="navbar-nav mx-auto d-flex justify-content-center w-100"> <!-- Sử dụng d-flex và justify-content-center -->
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('home')}}">Trang chủ</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('find_ticket')}}">Vé của bạn</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('about')}}">Về chúng tôi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('about')}}">Liên hệ</a>
+                </li>
+                {%if current_user.is_authenticated and (current_user.user_role.value== 2 or current_user.user_role.value ==1) %}
+                    <li class="nav-item">
+                    <a class="nav-link" href="{{url_for('admin.index')}}">Về trang ADMIN</a>
+                </li>
+                {%endif%}
+            </ul>
+
+            <!-- Các mục đăng nhập, đăng ký hoặc avatar -->
+            <ul class="log navbar-nav ms-auto">
+                {% if current_user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link text-light" href="#">
+                            {% if current_user.avatar %}
+                            <img src="{{current_user.avatar}}" class="rounded-circle" width="30" alt="{{current_user.name}}"/>
+                            {% else %}
+                            <img src="{{url_for('static', filename='images/avatar_male.jpg')}}" class="rounded-circle" width="30" alt="{{current_user.name}}"/>
+                            {% endif %}
+                            {{current_user.username}}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-danger" href="{{url_for('user_logout')}} ">Đăng xuất</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link btn login" href="{{url_for('user_login')}}" style="color: #fff;">Đăng nhập</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link btn btn-light" href="{{url_for('user_register')}}" style="color: #1d6a85;">Đăng ký</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

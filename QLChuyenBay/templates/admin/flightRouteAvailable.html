@@ -1,0 +1,21 @@
+{% extends 'admin/base.html'%}
+
+{%block body%}
+<table class="table mt-4">
+    <tr>
+        <th>Mã sân bay</th>
+        <th>Sân bay đi</th>
+        <th>Sân bay đến</th>
+        <th>Thời gian tạo</th>
+        <th></th>
+    </tr>
+    {%for rl in route_list %}
+    <tr id="route{{rl.id}}">
+        <td>{{rl.id}}</td>
+        <td>{{list_airport[rl.departure_airport_id -1]}}</td>
+        <td>{{list_airport[rl.arrival_airport_id -1 ]}}</td>
+        <td>{{rl.created_date}}</td>
+    </tr>
+    {%endfor%}
+</table>
+{%endblock%}

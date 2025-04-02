@@ -1,0 +1,128 @@
+{%extends 'layout/base.html'%}
+
+{%block title%}Về chúng tôi{%endblock%}
+
+{%block content%}
+<div class="my-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="mb-4">Giới Thiệu</h1>
+            <p class="h5">
+                Chào mừng bạn đến với <strong>PHUQUI Airlines</strong>, người bạn đồng hành đáng tin cậy trong việc đặt
+                vé máy bay một cách nhanh chóng và thuận tiện.
+                Chúng tôi cam kết mang đến cho bạn những trải nghiệm đặt vé dễ dàng, nhanh chóng, và giá cả hợp lý. Dù
+                bạn đang lên kế hoạch cho kỳ nghỉ, chuyến công tác hay thăm người thân, chúng tôi luôn sẵn sàng hỗ trợ
+                bạn.
+            </p>
+            <p class="h5">
+                Với sự hợp tác với các hãng hàng không hàng đầu, cùng giao diện thân thiện với người dùng, chúng tôi nỗ
+                lực mang lại các ưu đãi tốt nhất và quy trình đặt vé thuận tiện nhất. Hành trình của bạn bắt đầu tại
+                đây!
+            </p>
+
+        </div>
+        <div class="col-md-6 text-center">
+            <img src="https://t3.ftcdn.net/jpg/01/59/63/48/360_F_159634840_Fa2HPb8ITrbr5gddY2eKlomVfsnu1gx6.jpg"
+                 alt="Hình ảnh Giới Thiệu" class="img-fluid rounded">
+        </div>
+    </div>
+</div>
+
+<!-- Phần Tính Năng -->
+<div class="container my-5">
+    <div class="row text-center">
+        <div class="col-md-4">
+            <div class="card border-1 h-100 rounded-3 shadow-sm ">
+                <div class="abt-img3"></div>
+                <div class="card-body">
+                    <i class="bi bi-airplane fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Đối Tác Hàng Không Quốc Gia</h5>
+                    <p class="card-text">Hợp tác với các hãng hàng không hàng đầu để cung cấp giá vé và lộ trình tốt
+                        nhất.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-1 h-100 rounded shadow-sm">
+                <div class="abt-img1 "></div>
+                <div class="card-body">
+                    <i class="bi bi-calendar-check fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Đặt Vé Dễ Dàng</h5>
+                    <p class="card-text">Quy trình đặt vé đơn giản, tiết kiệm thời gian và công sức.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-1 h-100 rounded shadow-sm">
+                <div class="abt-img2 "></div>
+                <div class="card-body">
+                    <i class="bi bi-headset fs-1 text-primary"></i>
+                    <h5 class="card-title mt-3">Hỗ Trợ 24/7</h5>
+                    <p class="card-text">Đội ngũ hỗ trợ luôn sẵn sàng giải đáp mọi thắc mắc của bạn mọi lúc, mọi
+                        nơi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class=" h4 fw-bold text text-center my-3">ĐÁNH GIÁ CỦA KHÁCH HÀNG</div>
+{% if current_user.is_authenticated %}
+<div class="form-floating">
+    <textarea class="form-control"  placeholder="Để lại bình luận" id="floatingTextarea2"
+              style="height: 100px"></textarea>
+    <label class="ml-3" for="floatingTextarea2">Để lại đánh giá...</label>
+    <div class="d-flex justify-content-end mt-3"><input type="button" onclick="addComment()" class="btn btn-primary "
+                                                        value="Bình luận"></div>
+</div>
+
+{% else %}
+<a href="{{ url_for('user_login', next='about')}}" class="btn btn-warning mb-3"> Đăng nhập để bình luận</a>
+{% endif %}
+
+<div id="cmtArea">
+    {% for c in comments %}
+    <div class="row comments mt-2  border border-2 p-2">
+        <div class="col-md-1 col-xs-4">
+            <img class="rounded-circle img-fluid"
+                 src="{{c.avatar}} "
+                 alt="">
+        </div>
+        <div class="col-md-11 col-xs-8">
+            <p><strong>{{c.user_name}}</strong></p>
+            <p>{{c.content}}</p>
+            <p><em class="myDate">{{c.created_date}}</em></p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<script>
+    function addComment(){
+       let content = document.getElementById('floatingTextarea2');
+       fetch('/api/comments', {
+          method: 'POST',
+          body: JSON.stringify({
+              'content': content.value
+          }),
+          headers: {
+              'Content-Type': 'application/json'
+          }
+       })
+       .then(res => res.json())
+       .then(data => {
+          if(data.status==200){
+            window.location.reload()
+          }
+       })
+    }
+    let d = document.getElementsByClassName("myDate")
+        for (let i =0; i< d.length; i++){
+            d[i].innerText = moment(d[i].innerText).locale('vi').fromNow()
+        }
+
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js"></script>
+<script src="{{url_for('static', filename='js/about.js')}}"></script>
+
+{%endblock%}

@@ -1,0 +1,100 @@
+{% extends 'admin/base.html'%}
+
+{%block body%}
+
+
+<h1 class="text text-center">QUẢN LÝ QUY ĐỊNH</h1>
+
+<form action="javascript:;" class="shadow-lg border-1 rounded p-5">
+     <h3 class="text-center">Quy định về chuyến bay</h3>
+    <div class="row g-3">
+    <div class="col-md-6">
+        <label for="min_time_flight" class="form-label">Quy định thời gian bay tối thiểu: (phút)</label>
+        <input type="number" class="form-control" value="{{ admin_rules.min_time_flight }}" id="min_time_flight" name="min-time-flight">
+    </div>
+    <div class="col-md-6">
+        <label for="max_quantity_between_airport" class="form-label">Quy định số sân bay trung gian tối đa:</label>
+        <input type="number" class="form-control" value="{{ admin_rules.max_quantity_between_airport }}" id="max_quantity_between_airport" name="max_quantity_between_airport">
+    </div>
+</div>
+<div class="row g-3 mt-3">
+    <div class="col-md-6">
+        <label for="min_time_stay_airport" class="form-label">Quy định thời gian dừng tối thiểu: (phút)</label>
+        <input type="number" class="form-control" value="{{ admin_rules.min_time_stay_airport }}" id="min_time_stay_airport" name="min_time_stay_airport">
+    </div>
+    <div class="col-md-6">
+        <label for="max_time_stay_airport" class="form-label">Quy định thời gian dừng tối đa: (phút)</label>
+        <input type="number" class="form-control" value="{{ admin_rules.max_time_stay_airport }}" id="max_time_stay_airport" name="max_time_stay_airport">
+    </div>
+</div>
+
+    <br>
+     <h3 class="text-center">Quy định về vé</h3>
+   <div class="row g-3">
+    <div class="col-md-6">
+        <label for="time_book_ticket" class="form-label">Quy định thời gian đặt vé: (giờ)</label>
+        <input type="number" value="{{ admin_rules.time_book_ticket }}" class="form-control" id="time_book_ticket" name="time_book_ticket">
+    </div>
+    <div class="col-md-6">
+        <label for="time_buy_ticket" class="form-label">Quy định thời gian mua vé: (giờ)</label>
+        <input type="number" class="form-control" value="{{ admin_rules.time_buy_ticket }}" id="time_buy_ticket" name="time_buy_ticket">
+    </div>
+</div>
+
+
+    <div class="row mt-3 d-flex justify-content-center mt-3">
+        <button type="submit" onclick="btnChangeRules()" class="btn btn-success text-center">Xác nhận thay đổi quy định</button>
+    </div>
+</form>
+<br><br>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    const minTimeFlight= document.getElementById('min_time_flight')
+    const maxQuantityBetweenAirport= document.getElementById('max_quantity_between_airport')
+    const minTimeStayAirport= document.getElementById('min_time_stay_airport')
+    const maxTimeStayAirport= document.getElementById('max_time_stay_airport')
+    const timeBookTicket= document.getElementById('time_book_ticket')
+    const timeBuyTicket= document.getElementById('time_buy_ticket')
+
+    function btnChangeRules(){
+        Swal.fire({
+              title: "Bạn có chắc chắn thay đổi quy định?",
+              text: "Hành động này không thể hoàn tác!",
+              icon: "info",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "OK"
+        }).then((result) => {
+              if (result.isConfirmed) {
+                 fetch('/api/admin-rule', {
+                    method: "post",
+                    body: JSON.stringify({
+                        "min_flight": minTimeFlight.value,
+                        'max_quan_ba': maxQuantityBetweenAirport.value,
+                        'min_time_air': minTimeStayAirport.value,
+                        'max_time_air': maxTimeStayAirport.value,
+                        'time_book': timeBookTicket.value,
+                        'time_buy': timeBuyTicket.value
+                    }),
+                    headers: {
+                       'Content-Type': 'application/json'
+                    }
+                 }).then(res => res.json()).then(data => {
+                    if(data.status==200){
+                        Swal.fire({
+                            title: "Thành công!",
+                            text: "You clicked the button!",
+                            icon: "success"
+                        });
+                        window.location.reload()
+                    }
+                })
+              }
+        });
+    }
+</script>
+
+{%endblock%}
+

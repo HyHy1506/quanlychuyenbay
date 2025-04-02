@@ -1,0 +1,22 @@
+{%extends 'layout/base.html'%}
+
+{%block title%}Dang ky nguoi dung{% endblock%}
+
+{%block content%}
+<form method="POST" action="{{url_for('user_verify')}}">
+    <div class="mb-3 mt-3">
+        <label for="email" class="form-label">Email:</label>
+        <input type="email" class="form-control" id="email" placeholder="Nhập email" name="email">
+    </div>
+    {% if err_msg %}
+
+    <div class="alert alert-danger">
+        <h5>{{err_msg}}</h5>
+    </div>
+
+    {%endif%}
+    <div class="mb-3 mt-3">
+        <button type="submit" class="btn btn-success">Xác nhận</button>
+    </div>
+</form>
+{%endblock%}

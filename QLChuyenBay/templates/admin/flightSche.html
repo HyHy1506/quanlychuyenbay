@@ -1,0 +1,255 @@
+{% extends 'admin/base.html'%}
+
+{%block body%}
+
+<form action="javascript:;">
+    <datalist data-minTimeFly="{{ rules['min_time_flight'] }}"
+              data-minTimeStay="{{ rules['min_time_stay_airport'] }}"
+              data-maxTimeStay="{{ rules['max_time_stay_airport'] }}"
+              data-maxQuantity="{{rules.max_quantity_between_airport}}"
+              id="airports">
+    </datalist>
+    <div class="row my-4">
+        <div class="col-lg-6">
+            <label for="departure_airport_sche" class="form-label">Sân bay đi:</label>
+            <input onblur="getIdDeparture(parseInt(this.value.split('.')[0]))" name="departure_airport_sche"
+                   list="list_departure_sche" required type="text" class="form-control" id="departure_airport_sche">
+            <datalist id="list_departure_sche">
+                {%for i in route_list%}
+                <option value="{{i.departure_airport_id}}. {{list_airport[i.departure_airport_id -1 ]}}">
+                    {%endfor%}
+            </datalist>
+        </div>
+        <div class="col-lg-6">
+            <label for="arrival_airport_sche" class="form-label">Sân bay đến:</label>
+            <input required list="list_arrival_sche" name="arrival_airport_sche" type="text" class="form-control"
+                   id="arrival_airport_sche">
+            <datalist id="list_arrival_sche">
+                {%for i in route_list%}
+                <option value="{{i.arrival_airport_id}}. {{list_airport[i.arrival_airport_id-1]}}">
+                    {%endfor%}
+            </datalist>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-lg-3">
+            <label for="time-start" class="form-label">Thời gian đi:</label>
+            <input required name="time_start" type="datetime-local" class="form-control" id="time-start">
+        </div>
+        <div class="col-lg-3">
+            <label for="time-end" class="form-label">Thời gian đến (dự kiến):</label>
+            <input required name="time_end" type="datetime-local" class="form-control" id="time-end">
+        </div>
+        <div class="col-lg-3">
+            <label for="quantity-1st-ticket" class="form-label">Số lượng vé loại 1:</label>
+            <input required name="quantity_1st_ticket" value="50" type="number" class="form-control"
+                   id="quantity-1st-ticket" min="0" max="100">
+        </div>
+        <div class="col-lg-3">
+            <label for="quantity-2nd-ticket" class="form-label">Số lượng vé loại 2:</label>
+            <input required name="quantity_2nd_ticket" value="50" type="number" class="form-control"
+                   id="quantity-2nd-ticket" min="0" max="100">
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <label for="price_type_1" class="form-label">Nhập giá tiền vé hạng 1:</label>
+            <input name="price_type_1" type="number" class="form-control" id="price_type_1">
+        </div>
+        <div class="col-lg-6">
+            <label for="price_type_2" class="form-label">Nhập giá tiền vé hạng 2:</label>
+            <input name="price_type_2" type="number" class="form-control" id="price_type_2">
+        </div>
+    </div>
+    <div class="row airport-between">
+        <div class="col-lg-3">
+            <label for="airport-bw" class="form-label">Sân bay trung gian:</label>
+            <input name="airport_bw" type="text" class="form-control" id="airport-bw">
+        </div>
+        <div class="col-lg-3">
+            <label for="airport-bw-stay" class="form-label">Thời gian dừng (phút):</label>
+            <input name="airport_bw_stay" min="0" type="number" class="form-control" id="airport-bw-stay">
+        </div>
+        <div class="col-lg-6">
+            <label for="airport-bw-note" class="form-label">Ghi chú:</label>
+            <div class=" d-flex justify-content-between">
+                <div class="col-lg-12">
+                    <input name="airport_bw_note" type="text" class="form-control" id="airport-bw-note">
+                </div>
+                <div class="col-lg">
+                    <span id="sub-flightSche" class="ms-2 btn btn-danger">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-end gap-2 mt-4">
+        <div onclick="addBetweenAirport({{rules.max_quantity_between_airport}})"
+             class="btn btn-primary mr-3 add-bw-airport">
+            Thêm sân bay trung gian (Còn lại {{ rules.max_quantity_between_airport}})
+        </div>
+        <button type="submit" onclick="getData()" class="btn btn-success submit-btn">Tạo lịch chuyến bay</button>
+    </div>
+
+</form>
+<h3 class="my-3">LỊCH CHUYẾN BAY ĐÃ TẠO</h3>
+<table class="table mt-4">
+    <tr>
+        <th scope="col">ID</th>
+        <th scope="col">Sân đi</th>
+        <th scope="col">Sân đến</th>
+        <th scope="col">Thời gian đi</th>
+        <th scope="col">Thời gian đến</th>
+        <th scope="col">Chi tiết chuyến bay</th>
+    </tr>
+    {% for f in flight_sche_list %}
+    <tr>
+        <th>{{f.id}}</th>
+        <th>{{f.departure_airport}}</th>
+        <th>{{f.arrival_airport}}</th>
+        <th>{{f.time_start}}</th>
+        <th>{{f.time_end}}</th>
+        <th>
+            <button onclick="openModal({{f.id}})" class="btn btn-primary btn-details">Xem chi tiết</button>
+        </th>
+    </tr>
+    {%endfor%}
+</table>
+
+<div class="modal" id="myModal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <div id="contentData"></div>
+  </div>
+</div>
+
+<style>
+    .modal {
+      display: none; /* Ẩn hộp thoại mặc định */
+      position: fixed; /* Vị trí cố định */
+      z-index: 1; /* Đặt hộp thoại lên trên các phần tử khác */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto; /* Cho phép cuộn nếu nội dung quá dài */
+      background-color: rgba(0,0,0,0.4); /* Nền mờ */
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+</style>
+<script>
+    function getIdDeparture(departureId) {
+        const arrivalDatalist = document.getElementById('list_arrival_sche');
+        arrivalDatalist.innerHTML = '';
+        {% for i in route_list %}
+            if ({{ i.departure_airport_id }} == departureId) {
+                arrivalDatalist.innerHTML += `<option value="{{ i.arrival_airport_id }}. {{ list_airport[i.arrival_airport_id - 1] }}"></option>`;
+            }
+        {% endfor %}
+    };
+
+var modal = document.getElementById("myModal");
+
+var span = document.getElementsByClassName("close")[0];
+const contentData= document.getElementById('contentData')
+
+
+function openModal(id) {
+      modal.style.display = "block";
+
+      {%for f in flight_sche_list%}
+            if ({{f.id}}==id){
+                const htmls=`
+                   <div class='dataFlightDetails'>
+                         <div class="d-flex justify-content-around">
+                        <h5>Mã chuyến bay: </h5>
+                        <h5>{{ f.id }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Sân bay đi: </h5>
+                        <h5>{{ f.departure_airport }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Sân bay đến: </h5>
+                        <h5>{{ f.arrival_airport }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Thời gian đi: </h5>
+                        <h5>{{ f.time_start }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Thời gian đến: </h5>
+                        <h5>{{ f.time_end }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Số lượng vé loại 1: </h5>
+                        <h5>{{ f.ticket1_quantity }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Số lượng vé loại 2: </h5>
+                        <h5>{{ f.ticket2_quantity }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Giá vé hạng 1: </h5>
+                        <h5>{{ f.price_type_1 }}</h5>
+                    </div>
+                    <div class="d-flex justify-content-around">
+                        <h5>Giá vé hạng 2: </h5>
+                        <h5>{{ f.price_type_2 }}</h5>
+                    </div>
+                    {%if f.between_list.data[0].id  %}
+                         {%for ab in f.between_list.data %}
+                            <div class="d-flex justify-content-around">
+                                <h5>Sân bay trung gian: </h5>
+                                <h5>{{ab.airport_id}}. {{ab.airport_name}} </h5>
+                            </div>
+                        {%endfor%}
+                    {%endif%}
+                   </div>
+                `
+                contentData.insertAdjacentHTML('afterend', htmls)
+            }
+      {%endfor%}
+
+}
+
+span.onclick = function() {
+    modal.style.display = "none";
+    window.location.reload()
+
+}
+
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+    window.location.reload()
+
+  }
+}
+
+</script>
+<link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{url_for('static', filename='js/flightSche.js')}}"></script>
+
+{%endblock%}

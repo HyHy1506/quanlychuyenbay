@@ -1,0 +1,182 @@
+{% extends 'admin/base.html'%}
+
+{%block body%}
+<h1 class="text text-center text-success">QUẢN LÝ TUYẾN BAY</h1>
+
+<form action="javascript:;">
+    <div class="d-flex justify-content-around">
+        <div class="row mt-3">
+            <label for="departure" class="form-label">Choose your browser from the list:</label>
+            <input class="form-control" list="ldeparture" name="departure" id="departure">
+            <datalist id="ldeparture">
+                {%for i in list_airport%}
+                <option value="{{i.name}}">
+                    {%endfor%}
+            </datalist>
+        </div>
+        <div class="row mt-3">
+            <label for="arrival" class="form-label">Chọn tuyến bay đến:</label>
+            <input class="form-control" list="larrival" name="arrival" id="arrival">
+            <datalist id="larrival">
+                {%for i in list_airport%}
+                <option value="{{i.name}}">
+                    {%endfor%}
+            </datalist>
+        </div>
+    </div>
+    <div class="row mt-3 d-flex justify-content-around">
+        <button onclick="addRoute()" class="btn btn-success btn-submit">Thêm tuyến bay</button>
+    </div>
+</form>
+
+<table class="table mt-4">
+    <tr>
+        <th>Mã sân bay</th>
+        <th>Sân bay đi</th>
+        <th>Sân bay đến</th>
+        <th>Thời gian tạo</th>
+        <th></th>
+    </tr>
+    {%for rl in route_list %}
+    <tr id="route{{rl.id}}">
+        <td>{{rl.id}}</td>
+        <td>{{list_airport[rl.departure_airport_id -1]}}</td>
+        <td>{{list_airport[rl.arrival_airport_id -1 ]}}</td>
+        <td>{{rl.created_date}}</td>
+        <td>
+            <input type="button" onclick="editRoute({{rl.id}})"  value="Sửa" class="btn btn-info"/>
+            <input type="button" onclick="deleteRoute({{rl.id}})" value="Xóa" class="btn btn-danger"/>
+
+        </td>
+    </tr>
+    {%endfor%}
+</table>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Cập nhật thông tin tuyến bay:</p>
+    <input id="edit_departure" type="text" placeholder="Sân bay đi"><br>
+    <input id="edit_arrival" type="text" placeholder="Sân bay đến"><br>
+      <input id="editData" type="submit" class="btn btn-info" value="Cập nhật">
+  </div>
+</div>
+
+<style>
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Cho phép cuộn nếu nội dung quá dài */
+  background-color: rgba(0,0,0,0.4); /* Nền mờ */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
+
+<script>
+
+    const modal = document.getElementById('modal');
+    const btn = document.getElementById('open-modal');
+    const span = document.getElementsByClassName('close')[0];
+    const btnEditData= document.getElementById('editData')
+
+    function editRoute(id) {
+        modal.style.display = 'block';
+        event.stopPropagation()
+
+        const editDeparture= document.getElementById('edit_departure')
+        const editArrival= document.getElementById('edit_arrival')
+
+        btnEditData.onclick=()=>{
+           Swal.fire({
+              title: "Bạn có chắc chắn cập nhật thông tin?",
+              text: "Hành động này không thể hoàn tác!",
+              icon: "info",
+              showCancelButton: true,
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "OK"
+           }).then((result) => {
+              if (result.isConfirmed) {
+                 fetch(`/api/edit-route/${id}`, {
+                    method: "put",
+                    body: JSON.stringify({
+                        'departure_airport': editDeparture.value,
+                        'arrival_airport': editArrival.value
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(res => res.json()).then(data => {
+                    if(data.status==200){
+                        Swal.fire({
+                          title: "Thành công!",
+                          text: "You clicked the button!",
+                          icon: "success"
+                        });
+                        window.location.reload()
+                    }
+                    if(data==300){
+                         Swal.fire({
+                          icon: "error",
+                          title: "Oops...",
+                          text: "Tuyến bay đã được tạo lịch các chuyến bay. Vui lòng xóa tất cả các chuyến bay trước!",
+                        });
+                    }
+                    if(data.status==500){
+                        Swal.fire({
+                          icon: "error",
+                          title: "Oops...",
+                          text: "Tuyến bay đã tồn tại!",
+                        });
+                    }
+                })
+                  }
+            });
+           }
+    }
+
+
+
+    span.onclick = function() {
+      modal.style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) {
+        modal.style.display = 'none';
+      }
+    }
+</script>
+{%block js%}
+
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="{{url_for('static', filename='js/flightRoute.js')}}"></script>
+{%endblock%}
+{%endblock%}

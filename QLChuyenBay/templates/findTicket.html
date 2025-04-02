@@ -1,0 +1,44 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+
+<form action="javascript:;">
+    <h1>Tìm vé máy bay</h1>
+    <input type="text" id="searchTicket" placeholder="Số điện thoại/CCCD">
+    <button onclick="search()">Tìm vé</button>
+    </form>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: 300px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+</style>
+<script>
+        function search() {
+            const ticketValue = document.getElementById("searchTicket").value;
+            fetch('/ticket-request' , {
+                method: "POST",
+                body: JSON.stringify({
+                    'info_cus': ticketValue
+                }),
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).then(res=>res.json()).then(data=>{
+                window.location.href='/response-ticket'
+            })
+        }
+</script>
+
+{% endblock %}
